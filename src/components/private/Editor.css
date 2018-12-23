@@ -1,0 +1,186 @@
+.skeleton-editor .section:empty:focus::before {
+    content: attr(placeholder);
+    color: rgba(108, 117, 125, 0.7);
+}
+
+.skeleton-editor {
+    margin-top: 15vh;
+    margin-bottom: 5rem;
+    font-size: 1.5rem;
+}
+
+.skeleton-editor blockquote {
+    border-left: 5px solid var(--primary);
+    margin-left: 3rem;
+    padding-left: 1rem;
+}
+
+.skeleton-editor img {
+    width: 100%;
+}
+
+.skeleton-editor div:focus {
+    outline: none;
+}
+
+.skeleton-editor .section {
+    margin-top: 2rem;
+}
+
+.skeleton-editor p {
+    outline: none;
+}
+
+.skeleton-editor .section.image {
+    position: relative;
+}
+
+.skeleton-editor .section.image>p {
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 3px;
+    padding: 0 7rem;
+}
+
+.skeleton-editor .section.image>.remove-button {
+    position: absolute;
+    top: 3px;
+    left: calc(50% - 3rem);
+    width: 6rem;
+    height: 2rem;
+    background: var(--primary);
+    border-radius: 0 0 .25rem .25rem;
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 1000;
+}
+
+.skeleton-editor .section.image>p:empty::before {
+    content: attr(placeholder);
+    color: rgba(108, 117, 125, 0.7);
+}
+
+.skeleton-editor .section.image>p:empty:focus::before {
+    content: "";
+}
+
+.skeleton-editor .section.image>p:empty:hover::before {
+    cursor: text;
+}
+
+.skeleton-editor .section img {
+    border: 3px solid transparent;
+    transition: border-color .2s linear;
+}
+
+.skeleton-editor .section>img:hover {
+    border-color: var(--primary);
+}
+
+.skeleton-editor .title {
+    font-size: 3rem;
+    color: inherit;
+    font-weight: bold;
+    border: none;
+    width: 100%;
+}
+
+.skeleton-editor .title:focus {
+    outline: none;
+}
+
+.selection-tool {
+    position: absolute;
+    list-style: none;
+    background: #1d2124;
+    border-radius: 5px;
+    color: #fff;
+    padding: 0;
+    display: inline-flex;
+    z-index: 1000;
+}
+
+.selection-tool::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -10px;
+    border-width: 10px;
+    border-style: solid;
+    border-color: #343a40 transparent transparent transparent;
+}
+
+.selection-tool li {
+    display: inline;
+    padding: 0.8rem;
+}
+
+.insert-button {
+    width: 2rem;
+    height: 2rem;
+    background-image: url("../../media/plus-hover.svg");
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    z-index: 1000;
+    transition: background-image .2s;
+    cursor: pointer;
+}
+
+.insert-button:hover {
+    background-image: url("../../media/plus.svg");
+}
+
+.skeleton-editor-controls:first-of-type {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.8rem;
+}
+
+.skeleton-editor-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+}
+
+.skeleton-editor-controls .publish-button {
+    color: var(--primary);
+}
+
+.skeleton-editor-controls .publish-button:hover {
+    cursor: pointer;
+}
+
+.skeleton-editor-controls a {
+    color: var(--primary);
+}
+
+.skeleton-editor-controls p, .skeleton-editor-controls a {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+}
+
+.skeleton-editor-controls a:hover {
+    text-decoration: none;
+}
+
+.skeleton-editor-controls a:first-of-type {
+    border-right: #e5eff5 solid 1px;
+}
+
+.skeleton-editor-words {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+}
+
+.skeleton-editor-words p {
+    margin: 0;
+    padding: 0.5rem 1.5rem;
+}
