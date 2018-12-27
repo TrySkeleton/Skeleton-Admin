@@ -38,7 +38,10 @@ const request = (topic, payload) => {
                 reject(new Error(data.error))
             }
 
-        }).catch(err => reject(err))
+        }).catch(err => {
+            console.log(`Network error: ${err.message}`)
+            reject(err)
+        })
     })
 }
 

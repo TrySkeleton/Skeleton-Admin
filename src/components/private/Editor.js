@@ -5,8 +5,17 @@ import React, {Component, Fragment} from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { Session } from '../../Session'
+import DiffMatchPatch from 'diff-match-patch'
+import Net from '../../connect'
+import crypto from 'crypto'
 
 import imagePlaceholder from '../../media/image-placeholder.jpg'
+
+const SavingState = {
+    SAVED: "Saved",
+    SAVING: "Saving...",
+    UNSAVED: "Unsaved"
+}
 
 class Editor extends Component {
 
@@ -15,16 +24,24 @@ class Editor extends Component {
         super(props)
 
         this.state = {
-            status: 'New',
             words: 0,
-            post: {
-                title: ''
+            article: {
+                id: 55,
+                title: "",
+                content: "",
             },
+            lastSaved: {
+                title: "",
+                content: this.props.article.content
+            },
+            savingState: SavingState.UNSAVED,
             showImageInsertModal: false,
             showInsertButton: false,
             showTools: false
         }
 
+        this.save = this.save.bind(this)
+        this.publish = this.publish.bind(this)
         this.onTitleChange = this.onTitleChange.bind(this)
         this.onSectionBlur = this.onSectionBlur.bind(this)
         this.onSectionHover = this.onSectionHover.bind(this)
@@ -45,11 +62,23 @@ class Editor extends Component {
         this.heading = React.createRef()
         this.insertImagePreview = React.createRef()
         this.focusedSection = React.createRef()
+
+        this.savingTimeout = setTimeout(() => {}, 0)
     }
 
     componentDidMount() {
         document.addEventListener("selectionchange", this.updateTools)
         window.addEventListener("resize", this.updateTools)
+
+        this.content.current.innerHTML = this.props.article.content
+
+        document.querySelectorAll('.section').forEach(m => {
+            m.onkeydown = this.onEnter
+            m.onkeyup = this.onKeyUp
+            m.onmouseover = this.onSectionHover
+            m.onfocus = this.onSectionFocus
+            m.onblur = this.onSectionBlur
+        })
     }
 
     componentWillUnmount() {
@@ -106,8 +135,8 @@ class Editor extends Component {
 
     onTitleChange(e) {
         this.setState({
-            post: {
-                ...this.state.post,
+            article: {
+                ...this.state.article,
                 title: e.target.value
             }
         })
@@ -115,7 +144,7 @@ class Editor extends Component {
 
     onKeyUp(e) {
 
-        const words = this.content.current.innerText.replace(/\n/g, " ").split(" ").length -1
+        const words = this.content.current.innerText.replace(/\n/g, " ").split(" ").length
 
         this.setState({
             words: words > 0 ? words : 0
@@ -126,6 +155,11 @@ class Editor extends Component {
                 showInsertButton: this.focusedSection.current.childNodes.length === 0
             })
         }
+
+        window.clearTimeout(this.savingTimeout)
+        this.savingTimeout = setTimeout(() => {
+            this.save()
+        }, 2500)
     }
 
     onEnter(e) {
@@ -285,6 +319,51 @@ class Editor extends Component {
         }
     }
 
+    save() {
+
+        this.setState({
+            savingState: SavingState.SAVING
+        })
+
+        const currentContent = this.content.current.innerHTML || ""
+        const lastSavedContent = this.state.lastSaved.content
+
+        const dmp = new DiffMatchPatch()
+        const patches = dmp.patch_make(lastSavedContent, currentContent)
+        const checkSum = crypto.createHash('md5').update(currentContent).digest("hex")
+
+        Net.request("_skeleton", {
+            action: "PATCH_ARTICLE",
+            id: this.props.article.id,
+            patches,
+            checkSum
+        }).then(() => {
+            this.setState({
+                lastSaved: {
+                    ...this.state.lastSaved,
+                    content: currentContent
+                },
+                savingState: SavingState.SAVED
+            })
+        }).catch(e => {
+            console.log(e)
+        })
+    }
+
+    publish() {
+
+        const id = this.state.article.id
+
+        Net.request("_skeleton", {
+            action: "PUBLISH_ARTICLE",
+            id
+        }).then(() => {
+
+        }).catch(err => {
+
+        })
+    }
+
     render() {
 
         return (
@@ -295,14 +374,12 @@ class Editor extends Component {
                             Back
                         </Link>
                         <p className="text-secondary">
-                            { this.state.status }
+                            { this.state.savingState }
                         </p>
                     </div>
 
                     <div className="skeleton-editor-controls">
-                        <p className="publish-button">
-                            Publish
-                        </p>
+                        <button type="button" className="btn btn-link" onClick={ this.publish }>Publish</button>
                     </div>
 
                     <div className="text-secondary skeleton-editor-words">
@@ -310,7 +387,7 @@ class Editor extends Component {
                     </div>
 
                     <div className="container">
-                        <input ref={ this.heading } type="text" className={ this.state.post.title === "" ? "text-muted title" : "title"} onChange={ this.onTitleChange } value={ this.state.post.title } placeholder="Story Title" onKeyDown={ this.onEnter } />
+                        <input ref={ this.heading } type="text" className={ this.state.article.title === "" ? "text-muted title" : "title"} onChange={ this.onTitleChange } value={ this.state.article.title } placeholder="Story Title" onKeyDown={ this.onEnter } />
                         <div ref={ this.content } />
                     </div>
                 </div>
@@ -359,8 +436,21 @@ class Editor extends Component {
     }
 }
 
+class Article {
+    id = -1
+    title = ""
+    content = ""
+
+    constructor(id, title, content) {
+        this.id = id
+        this.title = title
+        this.content = content
+    }
+}
+
 Editor.propTypes = {
-    session: PropTypes.instanceOf(Session).isRequired
+    article: PropTypes.instanceOf(Article).isRequired,
+    session: PropTypes.instanceOf(Session).isRequired,
 }
 
 function placeCaretAtEnd(el) {
@@ -379,3 +469,6 @@ function placeCaretAtEnd(el) {
 }
 
 export default Editor
+export {
+    Article
+}

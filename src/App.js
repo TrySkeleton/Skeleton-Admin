@@ -4,6 +4,7 @@ import Layout from './components/private/Layout'
 import SignIn from './components/SignIn'
 import {BrowserRouter, Route, Redirect, Switch} from 'react-router-dom'
 import NewStoryLoading from './components/private/NewStoryLoading'
+import ArticleLoader from './components/private/ArticleLoader'
 import Session from './Session'
 import { observer } from 'mobx-react'
 
@@ -17,9 +18,10 @@ class App extends Component {
                     <NewStoryLoading />
                 </Route>
 
-                <Route exact path={ process.PUBLIC_URL + '/write/:id' }>
-                    <Editor session={ Session } />
-                </Route>
+                <Route exact path={ process.PUBLIC_URL + '/write/:articleId' } render={ (props) => {
+                    const articleId = parseInt(props.match.params.articleId)
+                    return <ArticleLoader id={ articleId } session={ Session } />
+                }} />
 
                 <Route exact path={ process.PUBLIC_URL + '/signin' }>
                     <Redirect to={ process.PUBLIC_URL  + '/'} />

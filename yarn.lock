@@ -2871,6 +2871,11 @@ detect-port-alt@1.1.6:
     address "^1.0.1"
     debug "^2.6.0"
 
+diff-match-patch@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/diff-match-patch/-/diff-match-patch-1.0.4.tgz#6ac4b55237463761c4daf0dc603eb869124744b1"
+  integrity sha512-Uv3SW8bmH9nAtHKaKSanOQmj2DnlH65fUpcrMdfdaOxUG02QQ4YGZ8AE7kKOMisF7UqvOlGKVYWRvezdncW9lg==
+
 diff@^3.2.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
@@ -2892,6 +2897,11 @@ dir-glob@^2.0.0:
   dependencies:
     arrify "^1.0.1"
     path-type "^3.0.0"
+
+dmp-js@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/dmp-js/-/dmp-js-1.0.1.tgz#562fb1194a1333efeecfe55c2d8212c85105ecc8"
+  integrity sha512-YL7e6w5qw0lIsSFiMbfuva4hhjB0HXIVkFcWpJ/dtmCmDVJv37gKrNzqZkyDLl0xsCZ9bx9CCFbpl5FNxumjUw==
 
 dns-equal@^1.0.0:
   version "1.0.0"

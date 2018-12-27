@@ -86,7 +86,7 @@ class Stories extends Component {
         if (this.state.stories.length >= 1) {
             stories = this.state.stories.map(p => {
                 return (
-                    <div className="story card" key={ p.id }>
+                    <Link to={ `${process.PUBLIC_URL}/write/${p.id}`} className="story card" key={ p.id }>
                         <div className="card-body">
                             <h5>{ p.title } { p["published_at"] ?
                                 <span className="badge badge-success">Published</span> :
@@ -97,7 +97,7 @@ class Stories extends Component {
                                 <p className="lead m-0 font-italic">This document is empty</p>
                             }</footer>
                         </div>
-                    </div>
+                    </Link>
                 )
             })
         }
