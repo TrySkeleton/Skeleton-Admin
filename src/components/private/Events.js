@@ -5,7 +5,6 @@ import moment from 'moment'
 import Connect from '../../connect'
 import Spinner from "../utils/Spinner"
 import EventsNew from "./EventsNew";
-import EventView from "./EventView";
 
 class EventsView extends Component {
 
@@ -13,6 +12,7 @@ class EventsView extends Component {
 
         super(props)
 
+        this.onDelete = this.onDelete.bind(this)
         this.onError = this.onError.bind(this)
         this.setPage = this.setPage.bind(this)
         this.fetchEvents = this.fetchEvents.bind(this)
@@ -79,6 +79,29 @@ class EventsView extends Component {
         })
     }
 
+    onDelete(id, target) {
+
+        if (!window.confirm("Do you really want to delete this event?")) {
+            return
+        }
+
+        target.disabled = true
+
+        Connect.request("_skeleton", {
+            action: "DELETE_EVENT",
+            id
+        }).then(() => {
+
+            const events = this.state.events.filter(e => e.id !== id)
+
+            this.setState({
+                events
+            })
+        }).catch(err => {
+
+        })
+    }
+
     render() {
 
         let events = (
@@ -88,17 +111,56 @@ class EventsView extends Component {
         )
 
         if (this.state.events.length >= 1) {
-            events = this.state.events.map(p => {
+            events = this.state.events.map(event => {
                 return (
-                    <Link to={ `${process.PUBLIC_URL}/events/${p.id}`} className="event card" key={ p.id }>
+                    <div className="event card" key={ event.id }>
                         <div className="card-body">
-                            <h5>{ p.title }</h5>
-                            <footer className="lead">{ p.description ?
-                                <p className="lead m-0">{ p.description }</p> :
-                                <p className="lead m-0 font-italic">No description</p>
-                            }</footer>
+                            <h5>{ event.title }</h5>
+                            { event.description ?
+                                <p className="lead">{ event.description }</p> :
+                                <p className="lead font-italic">No description</p>
+                            }
+
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td><p className="m-0 text-center pr-2"><i className="far fa-clock"></i></p></td>
+                                        <td>
+                                            <p className="m-0">
+                                            {
+                                                moment(event.start).format("LL")
+                                            } - {
+                                                moment(event.end).format("LL")
+                                            }
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    { event.location  ? (
+                                        <tr>
+                                            <td><p className="m-0 text-center pr-2"><i className="fas fa-location-arrow"></i>
+                                            </p></td>
+                                            <td><p className="m-0">{ event.location }</p></td>
+                                        </tr>
+                                    ) : null}
+
+                                    { event.booth ? (
+                                        <tr>
+                                            <td><p className="m-0 text-center pr-2"><i className="fas fa-map-pin"></i></p></td>
+                                            <td><p className="m-0">{ event.booth }</p></td>
+                                        </tr>
+                                    ) : null }
+                                </tbody>
+                            </table>
                         </div>
-                    </Link>
+                        <div className="card-footer p-1">
+                            <button
+                                type="button"
+                                className="btn btn-danger btn-sm float-right"
+                                onClick={ (e) => this.onDelete(event.id, e.target) }>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 )
             })
         }
@@ -164,8 +226,6 @@ class Events extends Component {
                 <Route exact path={ process.PUBLIC_URL + "/events/new" }>
                     <EventsNew/>
                 </Route>
-
-                <Route exact path={ process.PUBLIC_URL + "/events/:eventId" } component={ EventView }/>
             </Switch>
         )
     }

@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import Editor from './components/private/Editor'
 import Layout from './components/private/Layout'
 import SignIn from './components/SignIn'
 import {BrowserRouter, Route, Redirect, Switch} from 'react-router-dom'

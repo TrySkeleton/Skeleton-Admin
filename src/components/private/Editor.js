@@ -26,15 +26,13 @@ class Editor extends Component {
         this.state = {
             words: 0,
             article: {
-                id: 55,
-                title: "",
-                content: "",
+                title: this.props.article.title
             },
             lastSaved: {
                 title: "",
                 content: this.props.article.content
             },
-            savingState: SavingState.UNSAVED,
+            savingState: SavingState.SAVED,
             showImageInsertModal: false,
             showInsertButton: false,
             showTools: false
@@ -78,6 +76,7 @@ class Editor extends Component {
             m.onmouseover = this.onSectionHover
             m.onfocus = this.onSectionFocus
             m.onblur = this.onSectionBlur
+            m.contentEditable = true
         })
     }
 
@@ -101,12 +100,12 @@ class Editor extends Component {
 
     insertImage() {
 
-        const newSection = document.createElement("section")
+        const newSection = document.createElement("div")
         newSection.className = "section image"
 
         const newImage = document.createElement("img")
         newImage.setAttribute('src', this.insertImagePreview.current.getAttribute('src'))
-        newImage.className = "rounded image-fluid"
+        newImage.className = "rounded img-fluid"
 
         const newCation = document.createElement("p")
         newCation.contentEditable = "true"
@@ -138,7 +137,8 @@ class Editor extends Component {
             article: {
                 ...this.state.article,
                 title: e.target.value
-            }
+            },
+            savingState: SavingState.UNSAVED
         })
     }
 
@@ -159,7 +159,11 @@ class Editor extends Component {
         window.clearTimeout(this.savingTimeout)
         this.savingTimeout = setTimeout(() => {
             this.save()
-        }, 2500)
+        }, 1000)
+
+        this.setState({
+            savingState: SavingState.SAVING
+        })
     }
 
     onEnter(e) {
@@ -325,8 +329,8 @@ class Editor extends Component {
             savingState: SavingState.SAVING
         })
 
-        const currentContent = this.content.current.innerHTML || ""
-        const lastSavedContent = this.state.lastSaved.content
+        const currentContent = this.content.current.innerHTML.replace(/contenteditable="true"/g, "") || ""
+        const lastSavedContent = this.state.lastSaved.content || ""
 
         const dmp = new DiffMatchPatch()
         const patches = dmp.patch_make(lastSavedContent, currentContent)
@@ -352,7 +356,7 @@ class Editor extends Component {
 
     publish() {
 
-        const id = this.state.article.id
+        const id = this.props.article.id
 
         Net.request("_skeleton", {
             action: "PUBLISH_ARTICLE",
@@ -365,6 +369,15 @@ class Editor extends Component {
     }
 
     render() {
+
+        window.onbeforeunload = (e) => {
+
+            if (this.state.savingState !== SavingState.SAVED) {
+
+                e.preventDefault()
+                e.returnValue = ''
+            }
+        }
 
         return (
             <Fragment>
@@ -387,7 +400,14 @@ class Editor extends Component {
                     </div>
 
                     <div className="container">
-                        <input ref={ this.heading } type="text" className={ this.state.article.title === "" ? "text-muted title" : "title"} onChange={ this.onTitleChange } value={ this.state.article.title } placeholder="Story Title" onKeyDown={ this.onEnter } />
+                        <input
+                            ref={ this.heading }
+                            type="text"
+                            placeholder="Story Title"
+                            className={ this.state.article.title === "" ? "text-muted title" : "title"}
+                            value={ this.state.article.title }
+                            onChange={ this.onTitleChange }
+                            onKeyDown={ this.onEnter } />
                         <div ref={ this.content } />
                     </div>
                 </div>
@@ -429,7 +449,12 @@ class Editor extends Component {
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("createLink", window.getSelection().toString()) }><i className="fas fa-link"></i></button>
                 </div>
 
-                <div className={ `insert-button${this.state.showInsertButton ? '' : ' d-none'}`} role="group" ref={ this.insertButton } onClick={ this.toggleImageInsertModal } title="Add an image" />
+                <div
+                    className={ `insert-button${this.state.showInsertButton ? '' : ' d-none'}`}
+                    role="group"
+                    ref={ this.insertButton }
+                    onClick={ this.toggleImageInsertModal }
+                    title="Add an image" />
             </Fragment>
 
         )

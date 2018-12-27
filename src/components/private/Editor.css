@@ -178,6 +178,7 @@
     bottom: 1rem;
     right: 1rem;
     font-size: 0.8rem;
+    z-index: 1000;
 }
 
 .skeleton-editor-words p {

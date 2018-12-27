@@ -127,18 +127,22 @@ h2 {
   border-radius: 0 .25rem .25rem 0;
 }
 
-.event:not(:first-of-type) {
+.story:not(:first-of-type) {
   margin-top: 1rem;
 }
 
-.event {
+.story {
   color: inherit;
 }
 
-.event:hover {
+.story:hover {
   color: inherit;
   text-decoration: none;
   border-color: var(--primary);
+}
+
+.event:not(:first-of-type) {
+  margin-top: 1rem;
 }
 
 /* Spinner */

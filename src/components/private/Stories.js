@@ -69,7 +69,8 @@ class Stories extends Component {
         }
 
         this.setState({
-            page
+            page,
+            loading: true
         }, () => {
             this.fetchArticles()
         })
@@ -92,10 +93,10 @@ class Stories extends Component {
                                 <span className="badge badge-success">Published</span> :
                                 <span className="badge badge-danger">Draft</span>}
                             </h5>
-                            <footer className="lead">{ p.preview ?
+                            { p.preview ?
                                 <p className="lead m-0">{ p.preview }</p> :
                                 <p className="lead m-0 font-italic">This document is empty</p>
-                            }</footer>
+                            }
                         </div>
                     </Link>
                 )
@@ -104,15 +105,19 @@ class Stories extends Component {
 
         const pages = Array.from(Array(Math.ceil(this.state.articlesCount / 10)).keys())
 
-        const pagination = pages.length >= 2 ? (
+        const pagination = pages.length > 1 ? (
             <nav aria-label="Articles pagination">
                 <ul className="pagination justify-content-center mt-3">
-                    <li className="page-item">
-                        <button type="button" className="page-link" onClick={ (e) => this.setPage(this.state.page - 1, e) } aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                            <span className="sr-only">Previous</span>
-                        </button>
-                    </li>
+                    {
+                        this.state.page !== 0 ? (
+                            <li className="page-item">
+                                <button type="button" className="page-link" onClick={ (e) => this.setPage(this.state.page - 1, e) } aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                    <span className="sr-only">Previous</span>
+                                </button>
+                            </li>
+                        ) : null
+                    }
                     {
                         pages.map((page) => (
                             <li className={ `page-item${ this.state.page === page ? ' active' : ''}`} key={ `articles-page-${page}` }>
@@ -120,12 +125,16 @@ class Stories extends Component {
                             </li>
                         ))
                     }
-                    <li className="page-item">
-                        <button type="button" className="page-link" onClick={ (e) => this.setPage(this.state.page + 1, e) } aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                            <span className="sr-only">Next</span>
-                        </button>
-                    </li>
+                    {
+                        this.state.page !== pages.length -1 ? (
+                            <li className="page-item">
+                                <button type="button" className="page-link" onClick={ (e) => this.setPage(this.state.page + 1, e) } aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                    <span className="sr-only">Next</span>
+                                </button>
+                            </li>
+                        ) : null
+                    }
                 </ul>
             </nav>
         ) : null
