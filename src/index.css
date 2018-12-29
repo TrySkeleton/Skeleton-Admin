@@ -30,7 +30,7 @@ body {
 .sidebar-sticky {
   position: -webkit-sticky;
   position: sticky;
-  height: 100vh;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
   padding: 1.5rem;

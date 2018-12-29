@@ -6,10 +6,13 @@ import NewStoryLoading from './components/private/NewStoryLoading'
 import ArticleLoader from './components/private/ArticleLoader'
 import Session from './Session'
 import { observer } from 'mobx-react'
+import Setup from "./components/Setup";
 
 class App extends Component {
 
     render() {
+
+        const isSetup = true
 
         const display = Session.authenticated ? (
             <Switch>
@@ -42,10 +45,12 @@ class App extends Component {
             </Switch>
         )
 
-        return (
+        return isSetup ? (
             <BrowserRouter>
                 { display }
             </BrowserRouter>
+        ) : (
+            <Setup/>
         )
     }
 }
