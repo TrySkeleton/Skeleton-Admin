@@ -11,13 +11,14 @@ class Stories extends Component {
         super(props)
 
         this.onError = this.onError.bind(this)
+        this.onDelete = this.onDelete.bind(this)
         this.setPage = this.setPage.bind(this)
         this.fetchArticles = this.fetchArticles.bind(this)
 
         this.state = {
             articlesCount: 0,
             page: 0,
-            stories: [],
+            articles: [],
             loading: true
         }
     }
@@ -41,7 +42,7 @@ class Stories extends Component {
                 offset: this.state.page * 10
             }).then(payload => {
                 this.setState({
-                    stories: payload,
+                    articles: payload,
                     loading: false
                 })
             }).catch(err => this.onError(err))
@@ -76,27 +77,58 @@ class Stories extends Component {
         })
     }
 
+    onDelete(id, target) {
+
+        target.disabled = true
+
+        if (!window.confirm("Do you really want to delete this article?")) {
+            return
+        }
+
+        Connect.request("_skeleton", {
+            action: "DELETE_ARTICLE",
+            id
+        }).then(() => {
+
+            const articles = this.state.articles.filter(e => e.id !== id)
+
+            this.setState({
+                articles
+            })
+        }).catch(err => {
+            this.onError(err)
+        })
+    }
+
     render() {
 
-        let stories = (
+        let articles = (
             <div className="blankslate card">
-                <h3>No stories</h3>
+                <h3>No articles</h3>
             </div>
         )
 
-        if (this.state.stories.length >= 1) {
-            stories = this.state.stories.map(p => {
+        if (this.state.articles.length >= 1) {
+            articles = this.state.articles.map(article => {
                 return (
-                    <Link to={ `${process.PUBLIC_URL}/write/${p.id}`} className="story card" key={ p.id }>
+                    <Link to={ `${process.PUBLIC_URL}/write/${article.id}`} className="story card" key={ article.id }>
                         <div className="card-body">
-                            <h5>{ p.title } { p["published_at"] ?
+                            <h5>{ article.title } { article["published_at"] ?
                                 <span className="badge badge-success">Published</span> :
                                 <span className="badge badge-danger">Draft</span>}
                             </h5>
-                            { p.preview ?
-                                <p className="lead m-0">{ p.preview }</p> :
+                            { article.preview ?
+                                <p className="lead m-0">{ article.preview }</p> :
                                 <p className="lead m-0 font-italic">This document is empty</p>
                             }
+                        </div>
+                        <div className="card-footer p-1">
+                            <button
+                                type="button"
+                                className="btn btn-danger btn-sm float-right"
+                                onClick={ (e) => this.onDelete(article.id, e.target) }>
+                                Delete
+                            </button>
                         </div>
                     </Link>
                 )
@@ -150,7 +182,7 @@ class Stories extends Component {
 
                 { this.state.loading ? <Spinner/> : (
                     <Fragment>
-                        { stories }
+                        { articles }
                         { pagination }
                     </Fragment>
                 )}

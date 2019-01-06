@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Net from '../../connect'
 
-import Editor, { Article } from './Editor'
+import Editor from './Editor'
 import PropTypes from "prop-types";
 import {Session} from "../../Session";
 import Spinner from "../utils/Spinner";
@@ -25,7 +25,12 @@ class ArticleLoader extends Component {
         }).then(article => {
             this.setState({
                 loading: false,
-                article: new Article(article.id, article.title, article.content)
+                article: {
+                    id: article.id,
+                    title: article.title,
+                    content: article.content,
+                    isPublished: typeof article.published_at === 'string' && article.published_at.length > 1
+                }
             })
         })
     }
@@ -35,7 +40,12 @@ class ArticleLoader extends Component {
         return this.state.loading ? (
             <Spinner />
         ) : (
-            <Editor article={ this.state.article } session={ this.props.session } />
+            <Editor
+                id={ this.state.article.id }
+                title={ this.state.article.title }
+                content={ this.state.article.content}
+                isPublished={ this.state.article.isPublished }
+                session={ this.props.session } />
         )
     }
 }

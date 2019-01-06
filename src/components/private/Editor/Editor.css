@@ -1,5 +1,5 @@
 .skeleton-editor .section:empty:focus::before {
-    content: attr(placeholder);
+    content: "Begin writing a story..";
     color: rgba(108, 117, 125, 0.7);
 }
 
