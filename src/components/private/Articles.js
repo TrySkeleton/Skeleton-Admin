@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom'
 
 import Connect from '../../connect'
 import Spinner from "../utils/Spinner"
+import PropTypes from "prop-types"
+import {Session} from "../../Session"
 
-class Stories extends Component {
+class Articles extends Component {
 
     constructor(props) {
 
@@ -29,14 +31,14 @@ class Stories extends Component {
 
     fetchArticles() {
 
-        Connect.request('_skeleton', {
+        Connect.request(this.props.session, '_skeleton', {
             action: 'GET_ARTICLES_COUNT'
         }).then(payload => {
             this.setState({
                 articlesCount: payload
             })
 
-            Connect.request('_skeleton', {
+            Connect.request(this.props.session, '_skeleton', {
                 action: 'GET_ARTICLES',
                 limit: 10,
                 offset: this.state.page * 10
@@ -85,7 +87,7 @@ class Stories extends Component {
             return
         }
 
-        Connect.request("_skeleton", {
+        Connect.request(this.props.session, "_skeleton", {
             action: "DELETE_ARTICLE",
             id
         }).then(() => {
@@ -111,8 +113,8 @@ class Stories extends Component {
         if (this.state.articles.length >= 1) {
             articles = this.state.articles.map(article => {
                 return (
-                    <Link to={ `${process.PUBLIC_URL}/write/${article.id}`} className="story card" key={ article.id }>
-                        <div className="card-body">
+                    <div className="story card" key={ article.id }>
+                        <Link to={ `${process.PUBLIC_URL}/write/${article.id}`} className="card-body">
                             <h5>{ article.title } { article["published_at"] ?
                                 <span className="badge badge-success">Published</span> :
                                 <span className="badge badge-danger">Draft</span>}
@@ -121,7 +123,7 @@ class Stories extends Component {
                                 <p className="lead m-0">{ article.preview }</p> :
                                 <p className="lead m-0 font-italic">This document is empty</p>
                             }
-                        </div>
+                        </Link>
                         <div className="card-footer p-1">
                             <button
                                 type="button"
@@ -130,7 +132,7 @@ class Stories extends Component {
                                 Delete
                             </button>
                         </div>
-                    </Link>
+                    </div>
                 )
             })
         }
@@ -191,4 +193,8 @@ class Stories extends Component {
     }
 }
 
-export default Stories
+Articles.propTypes = {
+    session: PropTypes.instanceOf(Session).isRequired
+}
+
+export default Articles

@@ -120,7 +120,7 @@
 .insert-button {
     width: 2rem;
     height: 2rem;
-    background-image: url("../../media/plus-hover.svg");
+    background-image: url("../../../media/plus-hover.svg");
     background-size: auto 100%;
     background-repeat: no-repeat;
     background-position: center;
@@ -131,7 +131,7 @@
 }
 
 .insert-button:hover {
-    background-image: url("../../media/plus.svg");
+    background-image: url("../../../media/plus.svg");
 }
 
 .skeleton-editor-controls:first-of-type {

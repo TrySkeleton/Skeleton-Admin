@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import {Redirect} from "react-router-dom"
 
 import Net from '../../connect'
+import PropTypes from "prop-types"
+import {Session} from "../../Session"
 
 class NewStoryLoading extends Component {
 
@@ -15,7 +17,7 @@ class NewStoryLoading extends Component {
 
     componentDidMount() {
 
-        Net.request('_skeleton', {
+        Net.request(this.props.session, '_skeleton', {
             action: "CREATE_NEW_ARTICLE"
         }).then(storyId => {
             this.setState({
@@ -37,6 +39,10 @@ class NewStoryLoading extends Component {
             </div>
         ) : <Redirect to={ `${process.PUBLIC_URL}/write/${ this.state.newStoryId }`} />
     }
+}
+
+NewStoryLoading.propTypes = {
+    session: PropTypes.instanceOf(Session).isRequired
 }
 
 export default NewStoryLoading

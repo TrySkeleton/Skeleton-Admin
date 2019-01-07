@@ -1,7 +1,6 @@
 import './SignIn.css'
 import PropTypes from "prop-types"
 import Media from '../media'
-import Net from '../connect'
 
 import React, { Component } from 'react'
 import {Session} from "../Session"
@@ -16,6 +15,7 @@ class SignIn extends Component {
         this.onSubmit = this.onSubmit.bind(this)
 
         this.state = {
+            email: "",
             password: "",
             errorMessage: "",
             loading: false
@@ -24,7 +24,7 @@ class SignIn extends Component {
 
     onChange(e) {
         this.setState({
-            password: e.target.value
+            [e.target.name]: e.target.value
         })
     }
 
@@ -35,7 +35,6 @@ class SignIn extends Component {
             loading: true
         })
 
-        const password = this.state.password
         const requestTimeout = setTimeout(() => {
             this.setState({
                 loading: false,
@@ -43,12 +42,33 @@ class SignIn extends Component {
             })
         }, 10000)
 
-        Net.request('_skeleton', {
-            action: 'AUTH_WITH_ACCESS_PASSWORD',
-            password
-        }).then(token => {
+        const { password, email } = this.state
+
+        fetch('/skeleton/api/v1/auth', {
+            method: 'POST',
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            body: JSON.stringify({
+                username: email,
+                password
+            })
+        }).then(res => res.json()).then(data => {
+
+            if (data.type === "ERROR") {
+                this.setState({
+                    loading: false,
+                    errorMessage: data.error.message || "Unknown error"
+                })
+                return
+            }
+
+            const { token } = data
+
             this.props.session.authenticated = true
             this.props.session.token = token
+
         }).catch(err => {
             this.setState({
                 loading: false,
@@ -65,11 +85,29 @@ class SignIn extends Component {
             <Spinner/>
         ) : (
             <form onSubmit={ this.onSubmit }>
+                <div className="input-group mb-1">
+                    <input
+                        name="email"
+                        type="email"
+                        className={ this.state.errorMessage ? "form-control rounded-right is-invalid" : "form-control rounded-right" }
+                        placeholder="Email Address"
+                        required
+                        autoFocus
+                        onChange={ this.onChange }
+                        value={ this.state.email } />
+                </div>
+
                 <div className="input-group mb-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text" id="lock-icon"><i className="fas fa-lock"></i></span>
-                    </div>
-                    <input type="password" className={ this.state.errorMessage ? "form-control rounded-right is-invalid" : "form-control rounded-right" } placeholder="Password" aria-label="Password" aria-describedby="lock-icon" required minLength="6" onChange={ this.onChange } value={ this.state.password } autoFocus />
+                    <input
+                        name="password"
+                        type="password"
+                        className={ this.state.errorMessage ? "form-control rounded-right is-invalid" : "form-control rounded-right" }
+                        placeholder="Password"
+                        required
+                        autoFocus
+                        minLength="6"
+                        onChange={ this.onChange }
+                        value={ this.state.password } />
                     <div className="invalid-feedback text-center">
                         { this.state.errorMessage }
                     </div>

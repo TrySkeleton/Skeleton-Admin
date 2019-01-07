@@ -3,7 +3,7 @@ import Layout from './components/private/Layout'
 import SignIn from './components/SignIn'
 import {BrowserRouter, Route, Redirect, Switch} from 'react-router-dom'
 import NewStoryLoading from './components/private/NewStoryLoading'
-import ArticleLoader from './components/private/ArticleLoader'
+import ArticleLoader from './components/private/Editor/ArticleLoader'
 import Session from './Session'
 import { observer } from 'mobx-react'
 import Setup from "./components/Setup";
@@ -14,10 +14,10 @@ class App extends Component {
 
         const isSetup = true
 
-        const display = Session.authenticated ? (
+        const display = Session.authenticated && Session.token ? (
             <Switch>
                 <Route exact path={ process.PUBLIC_URL + '/write/new' }>
-                    <NewStoryLoading />
+                    <NewStoryLoading session={ Session }/>
                 </Route>
 
                 <Route exact path={ process.PUBLIC_URL + '/write/:articleId' } render={ (props) => {
@@ -39,7 +39,7 @@ class App extends Component {
                     <SignIn session={ Session } />
                 </Route>
 
-                <Route path='/'>
+                <Route>
                     <Redirect to={ process.PUBLIC_URL  + '/signin'} />
                 </Route>
             </Switch>

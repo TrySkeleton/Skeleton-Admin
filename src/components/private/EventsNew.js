@@ -3,6 +3,8 @@ import {Link} from "react-router-dom";
 import moment from "moment";
 import Connect from "../../connect";
 import Done from "../utils/Done";
+import PropTypes from "prop-types"
+import {Session} from "../../Session"
 
 class EventsNew extends Component {
 
@@ -43,7 +45,7 @@ class EventsNew extends Component {
 
         const event = this.state.newEvent
 
-        Connect.request('_skeleton', {
+        Connect.request(this.props.session,'_skeleton', {
             action: 'CREATE_EVENT',
             event
         }).then(payload => {
@@ -148,6 +150,10 @@ class EventsNew extends Component {
             </Fragment>
         )
     }
+}
+
+EventsNew.propTypes = {
+    session: PropTypes.instanceOf(Session).isRequired
 }
 
 export default EventsNew

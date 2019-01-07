@@ -5,6 +5,8 @@ import moment from 'moment'
 import Connect from '../../connect'
 import Spinner from "../utils/Spinner"
 import EventsNew from "./EventsNew";
+import PropTypes from "prop-types"
+import {Session} from "../../Session"
 
 class EventsView extends Component {
 
@@ -32,14 +34,14 @@ class EventsView extends Component {
 
     fetchEvents() {
 
-        Connect.request('_skeleton', {
+        Connect.request(this.props.session, '_skeleton', {
             action: 'GET_EVENTS_COUNT'
         }).then(payload => {
             this.setState({
                 eventsCount: payload
             })
 
-            Connect.request('_skeleton', {
+            Connect.request(this.props.session, '_skeleton', {
                 action: 'GET_EVENTS',
                 limit: 10,
                 offset: this.state.page * 10
@@ -81,13 +83,13 @@ class EventsView extends Component {
 
     onDelete(id, target) {
 
+        target.disabled = true
+
         if (!window.confirm("Do you really want to delete this event?")) {
             return
         }
 
-        target.disabled = true
-
-        Connect.request("_skeleton", {
+        Connect.request(this.props.session, "_skeleton", {
             action: "DELETE_EVENT",
             id
         }).then(() => {
@@ -213,6 +215,10 @@ class EventsView extends Component {
     }
 }
 
+EventsView.propTypes = {
+    session: PropTypes.instanceOf(Session).isRequired
+}
+
 class Events extends Component {
 
     render() {
@@ -220,15 +226,19 @@ class Events extends Component {
         return (
             <Switch>
                 <Route exact path={ process.PUBLIC_URL + "/events" }>
-                    <EventsView/>
+                    <EventsView session={ this.props.session } />
                 </Route>
 
                 <Route exact path={ process.PUBLIC_URL + "/events/new" }>
-                    <EventsNew/>
+                    <EventsNew session={ this.props.session }/>
                 </Route>
             </Switch>
         )
     }
+}
+
+Events.propTypes = {
+    session: PropTypes.instanceOf(Session).isRequired
 }
 
 export default Events

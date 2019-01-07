@@ -45,6 +45,19 @@ body {
   text-transform: uppercase;
 }
 
+.skeleton-error {
+
+}
+
+.skeleton-errors {
+  width: 50%;
+  position: fixed;
+  left: 50%;
+  margin-left: -25%;
+  bottom: .2rem;
+  z-index: 1000;
+}
+
 .sidebar .nav-link {
   font-size: 1rem;
   color: #333;
@@ -71,24 +84,17 @@ body {
 
 .account-info .blog-title {
   font-weight: bold;
-}
+}.
+
+.cursor-grab {
+  cursor: grab;
+ }
 
 h2 {
   font-weight: bold;
 }
 
-.story:not(:first-of-type) {
-  margin-top: 1rem;
-}
 
-.story:hover {
-  border-color: var(--primary);
-  cursor: pointer;
-}
-
-.skeleton-team-list .list-group-item:hover {
-
-}
 
 .blankslate {
   text-align: center;
@@ -131,14 +137,13 @@ h2 {
   margin-top: 1rem;
 }
 
-.story {
+.story>.card-body {
   color: inherit;
 }
 
-.story:hover {
-  color: inherit;
+.story>.card-body:hover {
+  color: var(--primary);
   text-decoration: none;
-  border-color: var(--primary);
 }
 
 .event:not(:first-of-type) {

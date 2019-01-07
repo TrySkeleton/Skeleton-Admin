@@ -2,11 +2,10 @@ import './Editor.css'
 import PropTypes from "prop-types"
 
 import React, {Component, Fragment} from 'react'
-import ReactDOM from 'react-dom'
 import { Link } from 'react-router-dom'
-import { Session } from '../../Session'
+import { Session } from '../../../Session'
 import DiffMatchPatch from 'diff-match-patch'
-import Net from '../../connect'
+import Net from '../../../connect'
 import crypto from 'crypto'
 
 import EditorImageUploader from './EditorImageUploader'
@@ -36,12 +35,12 @@ class Editor extends Component {
             showImageInsertModal: false,
             showInsertButton: false,
             showTools: false,
-            showArticleProperties: true
+            showArticleProperties: false,
+            showImageUploader: false
         }
 
         this.save = this.save.bind(this)
         this.requestSave = this.requestSave.bind(this)
-        this.publish = this.publish.bind(this)
         this.execCommand = this.execCommand.bind(this)
         this.onTitleChange = this.onTitleChange.bind(this)
         this.onSectionFocus = this.onSectionFocus.bind(this)
@@ -50,8 +49,7 @@ class Editor extends Component {
         this.onKeyUp = this.onKeyUp.bind(this)
         this.insertSection = this.insertSection.bind(this)
         this.updateTools = this.updateTools.bind(this)
-        this.openImageSelector = this.openImageSelector.bind(this)
-        this.openArticleProperties = this.openArticleProperties.bind(this)
+        this.onInsertImage = this.onInsertImage.bind(this)
 
         this.insertButton = React.createRef()
         this.tools = React.createRef()
@@ -69,9 +67,7 @@ class Editor extends Component {
         document.querySelectorAll('.section').forEach(m => {
             m.onkeydown = this.onEnter
             m.onkeyup = this.onKeyUp
-            m.onmouseover = this.onSectionHover
             m.onfocus = this.onSectionFocus
-            m.onblur = this.onSectionBlur
             m.contentEditable = true
         })
     }
@@ -82,20 +78,14 @@ class Editor extends Component {
         window.clearTimeout(this.savingTimeout)
     }
 
-    openImageSelector() {
-        ReactDOM.render(<EditorImageUploader session={ this.props.session} onClose={ () => {
+    onInsertImage(imageURL) {
 
-        }} />, this.focusedSection.current, () => {
-            this.setState({
-                showInsertButton: false
-            })
-        })
-    }
-
-    openArticleProperties() {
-        this.setState({
-            showArticleProperties: true
-        })
+        const newSection = document.createElement("img")
+        newSection.src = imageURL
+        newSection.className = "section img-fluid"
+        newSection.onfocus = this.onSectionFocus
+        this.insertSection(newSection)
+        newSection.focus()
     }
 
     requestSave() {
@@ -122,7 +112,7 @@ class Editor extends Component {
         const patches = dmp.patch_make(lastSavedContent, currentContent)
         const checkSum = crypto.createHash('md5').update(currentContent).digest("hex")
 
-        Net.request("_skeleton", {
+        Net.request(this.props.session, "_skeleton", {
             action: "PATCH_ARTICLE",
             id: this.props.id,
             patches,
@@ -138,20 +128,6 @@ class Editor extends Component {
             })
         }).catch(e => {
             console.log(e)
-        })
-    }
-
-    publish() {
-
-        const id = this.props.id
-
-        Net.request("_skeleton", {
-            action: "PUBLISH_ARTICLE",
-            id
-        }).then(() => {
-
-        }).catch(err => {
-
         })
     }
 
@@ -247,14 +223,19 @@ class Editor extends Component {
         newSection.className = "section"
         newSection.onkeydown = this.onEnter
         newSection.onkeyup = this.onKeyUp
-        newSection.onmouseover = this.onSectionHover
         newSection.onfocus = this.onSectionFocus
-        newSection.onblur = this.onSectionBlur
         this.insertSection(newSection)
         newSection.focus()
     }
 
-    insertSection(newSection) {
+    insertSection(newSection, index) {
+
+        if (!(Number.isInteger(index) && index >= 0)) {
+
+
+
+            return
+        }
 
         if (this.content.current.children.length < 1) {
             newSection.setAttribute("key", "0")
@@ -328,9 +309,7 @@ class Editor extends Component {
     render() {
 
         window.onbeforeunload = (e) => {
-
             if (this.state.savingState !== SavingState.SAVED) {
-
                 e.preventDefault()
                 e.returnValue = ''
             }
@@ -349,7 +328,11 @@ class Editor extends Component {
                     </div>
 
                     <div className="skeleton-editor-controls">
-                        <button type="button" className="btn btn-link" onClick={ this.openArticleProperties }>Properties</button>
+                        <button type="button" className="btn btn-outline-secondary" onClick={ () => {
+                            this.setState({
+                                showArticleProperties: true
+                            })
+                        }}>Properties</button>
                     </div>
 
                     <div className="text-secondary skeleton-editor-words">
@@ -358,13 +341,14 @@ class Editor extends Component {
 
                     <div className="container">
                         <input
-                            ref={ this.heading }
                             type="text"
                             placeholder="Story Title"
                             className={ this.state.article.title === "" ? "text-muted title" : "title"}
                             value={ this.state.article.title }
                             onChange={ this.onTitleChange }
-                            onKeyDown={ this.onEnter } />
+                            onKeyDown={ this.onEnter }
+                            ref={ this.heading } />
+
                         <div ref={ this.content } />
                     </div>
                 </div>
@@ -384,23 +368,38 @@ class Editor extends Component {
                     className={ `insert-button${this.state.showInsertButton ? '' : ' d-none'}`}
                     role="group"
                     ref={ this.insertButton }
-                    onClick={ this.openImageSelector }
+                    onClick={ () => {
+                        this.setState({
+                            showImageUploader: true
+                        })
+                    }}
                     title="Add an image" />
 
                 <EditorArticleProperties
                     session={ this.props.session }
                     id={ this.props.id }
                     title={ this.state.article.title }
-                    display={ this.state.showArticleProperties }
+                    coverURL={ this.props.coverURL }
                     isPublished={ this.props.isPublished }
+                    display={ this.state.showArticleProperties }
                     onToggle={ () => {
                         this.setState({
                             showArticleProperties: !this.state.showArticleProperties
                         })
                     }}
                 />
-            </Fragment>
 
+                <EditorImageUploader
+                    session={ this.props.session }
+                    onInsert={ this.onInsertImage }
+                    display={ this.state.showImageUploader }
+                    onToggle={ () => {
+                        this.setState({
+                            showImageUploader: !this.state.showImageUploader
+                        })
+                    }}
+                />
+            </Fragment>
         )
     }
 }
@@ -409,6 +408,7 @@ Editor.propTypes = {
     session: PropTypes.instanceOf(Session).isRequired,
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
+    coverURL: PropTypes.string.isRequired,
     isPublished: PropTypes.bool.isRequired,
     content: PropTypes.string
 }

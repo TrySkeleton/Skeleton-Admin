@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import Net from '../../connect'
+import Net from '../../../connect'
 
 import Editor from './Editor'
 import PropTypes from "prop-types";
-import {Session} from "../../Session";
-import Spinner from "../utils/Spinner";
+import {Session} from "../../../Session";
+import Spinner from "../../utils/Spinner";
 
 class ArticleLoader extends Component {
 
@@ -19,7 +19,7 @@ class ArticleLoader extends Component {
 
     componentDidMount() {
 
-        Net.request('_skeleton', {
+        Net.request(this.props.session,'_skeleton', {
             action: "GET_ARTICLE",
             id: this.props.id
         }).then(article => {
@@ -29,6 +29,7 @@ class ArticleLoader extends Component {
                     id: article.id,
                     title: article.title,
                     content: article.content,
+                    coverURL: article.cover_image_url || "",
                     isPublished: typeof article.published_at === 'string' && article.published_at.length > 1
                 }
             })
@@ -43,7 +44,8 @@ class ArticleLoader extends Component {
             <Editor
                 id={ this.state.article.id }
                 title={ this.state.article.title }
-                content={ this.state.article.content}
+                content={ this.state.article.content }
+                coverURL={ this.state.article.coverURL }
                 isPublished={ this.state.article.isPublished }
                 session={ this.props.session } />
         )

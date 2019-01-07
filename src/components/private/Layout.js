@@ -2,13 +2,14 @@ import React, { Component } from 'react'
 import NotFound from "./NotFound"
 import Search from "./Search"
 import Settings from "./Settings"
-import Stories from "./Stories"
+import Articles from "./Articles"
 import { Route, NavLink, Link, Switch, Redirect, withRouter } from 'react-router-dom'
 import Team from "./Team"
 import PropTypes from 'prop-types'
 import Media from '../../media'
 import { Session } from '../../Session'
-import Events from "./Events";
+import Events from "./Events"
+import errorsStore, { ErrorsView } from "../../Errors"
 
 class Layout extends Component {
 
@@ -65,9 +66,9 @@ class Layout extends Component {
                                 </div>
                             </div>
 
-                            <input type="search" className="my-4 form-control" placeholder="Search" value={ this.state.searchInput } onChange={ this.onSearchInput } />
+                            <input type="search" className="my-4 form-control d-none" placeholder="Search" value={ this.state.searchInput } onChange={ this.onSearchInput } />
 
-                            <ul className="nav flex-column">
+                            <ul className="nav flex-column mt-4">
                                 <li className="nav-item d-none">
                                     <NavLink className="nav-link" to={ process.PUBLIC_URL + "/write/new" }>
                                         New Story
@@ -89,11 +90,6 @@ class Layout extends Component {
                             </h6>
                             <ul className="nav flex-column">
                                 <li className="nav-item">
-                                    <a className="nav-link" href="https://analytics.google.com/analytics/web" target="_blank" rel="noopener noreferrer">
-                                        Analytics
-                                    </a>
-                                </li>
-                                <li className="nav-item">
                                     <a className="nav-link" href="http://console.cloud.google.com" target="_blank" rel="noopener noreferrer">
                                         Cloud Platform
                                     </a>
@@ -103,29 +99,7 @@ class Layout extends Component {
                                         SearchConsole
                                     </a>
                                 </li>
-                                {/*
-                                <li className="nav-item">
-                                    <NavLink className="nav-link" to={ process.PUBLIC_URL + "/team" }>
-                                        Team
-                                    </NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink className="nav-link" to={ process.PUBLIC_URL + "/settings" }>
-                                        Settings
-                                    </NavLink>
-                                </li>
-                                */}
                             </ul>
-
-                            {/*
-                            <h6 className="sidebar-heading d-flex justify-content-between align-items-center mt-4 mb-1 text-muted">
-                                <span>Plugins</span>
-                            </h6>
-
-                            <ul className="nav flex-column">
-
-                            </ul>
-                            */}
 
                             <div className="col-uw-1 col-lg-2 col-md-3 col-12 text-center fixed-bottom pb-3">
                                 <hr />
@@ -142,7 +116,7 @@ class Layout extends Component {
                                 </Route>
 
                                 <Route exact path={ process.PUBLIC_URL + "/stories" }>
-                                    <Stories />
+                                    <Articles session={ this.props.session } />
                                 </Route>
 
                                 <Route exact path={ process.PUBLIC_URL + "/team" }>
@@ -158,7 +132,7 @@ class Layout extends Component {
                                 </Route>
 
                                 <Route path={ process.PUBLIC_URL + "/events/" }>
-                                    <Events />
+                                    <Events session={ this.props.session } />
                                 </Route>
 
                                 <Route path={ process.PUBLIC_URL + "/" }>
@@ -168,6 +142,8 @@ class Layout extends Component {
                         </div>
                     </div>
                 </div>
+
+                <ErrorsView store={ errorsStore } />
             </div>
         )
     }

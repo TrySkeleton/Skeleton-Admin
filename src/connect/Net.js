@@ -1,13 +1,10 @@
 const REQUEST = "REQUEST"
 
-const request = (topic, payload) => {
-
-    // TODO: Get app session
-    const session = { token: "" }
+const request = (session, topic, payload) => {
 
     return new Promise((resolve, reject) => {
 
-        fetch('/skeleton/api/connect', {
+        fetch('/skeleton/api/v1/connect', {
             method: "POST",
             cache: "no-cache",
             headers: {
