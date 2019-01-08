@@ -33,7 +33,7 @@ class EditorArticleProperties extends Component {
 
     setPublishState(publish) {
 
-        Net.request('_skeleton', {
+        Net.request(this.props.session, '_skeleton', {
             action: "SET_ARTICLE_PUBLISH_STATE",
             id: this.props.id,
             publish: publish
