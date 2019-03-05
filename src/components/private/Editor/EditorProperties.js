@@ -3,8 +3,9 @@ import PropTypes from "prop-types"
 import {Session} from "../../../Session"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Net from '../../../connect'
+import EditorPropertiesCoverImage from "./EditorPropertiesCoverImage"
 
-class EditorArticleProperties extends Component {
+class EditorProperties extends Component {
 
     constructor(props) {
 
@@ -17,8 +18,6 @@ class EditorArticleProperties extends Component {
             isPublished: this.props.isPublished,
             errors: []
         }
-
-        this.coverImageThumbnail = React.createRef()
     }
 
     componentDidMount() {
@@ -61,15 +60,11 @@ class EditorArticleProperties extends Component {
                     { errors }
                     <div className="form-group">
                         <label>Cover image (4:3)</label>
-                        <div>
-                            <img className="img-fluid img-thumbnail" src={ this.props.coverURL } ref={ this.coverImageThumbnail } alt="Article cover" />
-                            <button type="button" className="btn btn-outline-secondary">Change cover</button>
-                        </div>
-                    </div>
-                    <hr />
-                    <div className="form-group">
-                        <label>Tags (separate by comma)</label>
-                        <input type="text" className="form-control" />
+                        <EditorPropertiesCoverImage
+                            id={ this.props.id }
+                            session={ this.props.session }
+                            coverURL={ this.props.coverURL }
+                        />
                     </div>
                 </ModalBody>
                 <ModalFooter>
@@ -86,7 +81,7 @@ class EditorArticleProperties extends Component {
     }
 }
 
-EditorArticleProperties.propTypes = {
+EditorProperties.propTypes = {
     session: PropTypes.instanceOf(Session).isRequired,
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
@@ -96,4 +91,4 @@ EditorArticleProperties.propTypes = {
     onToggle: PropTypes.func.isRequired
 }
 
-export default EditorArticleProperties
+export default EditorProperties

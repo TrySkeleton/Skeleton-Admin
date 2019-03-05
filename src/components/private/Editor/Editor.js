@@ -9,7 +9,7 @@ import Net from '../../../connect'
 import crypto from 'crypto'
 
 import EditorImageUploader from './EditorImageUploader'
-import EditorArticleProperties from './EditorArticleProperties'
+import EditorProperties from './EditorProperties'
 
 const SavingState = {
     SAVED: "Saved",
@@ -230,9 +230,7 @@ class Editor extends Component {
 
     insertSection(newSection, index) {
 
-        if (!(Number.isInteger(index) && index >= 0)) {
-
-
+        if (Number.isInteger(index) && index >= 0) {
 
             return
         }
@@ -357,7 +355,6 @@ class Editor extends Component {
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("bold") }><i className="fas fa-bold"/></button>
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("italic") }><i className="fas fa-italic"/></button>
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("formatBlock", "<h2>") }><i className="fas fa-heading"/></button>
-                    <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("formatBlock", "<blockquote>") }><i className="fas fa-quote-right"/></button>
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("createLink", window.getSelection().toString()) }><i className="fas fa-link"/></button>
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("justifyLeft")}><i className="fas fa-align-left"/></button>
                     <button type="button" className="btn btn-dark" onClick={ () => this.execCommand("justifyCenter")}><i className="fas fa-align-center"/></button>
@@ -375,7 +372,7 @@ class Editor extends Component {
                     }}
                     title="Add an image" />
 
-                <EditorArticleProperties
+                <EditorProperties
                     session={ this.props.session }
                     id={ this.props.id }
                     title={ this.state.article.title }

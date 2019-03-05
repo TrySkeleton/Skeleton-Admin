@@ -10,8 +10,8 @@ class EditorImageUploader extends Component {
 
         this.state = {
             imageURL: "",
-            showModal: true,
             isValid: false,
+            showModal: true,
             errors: []
         }
 
@@ -43,7 +43,7 @@ class EditorImageUploader extends Component {
             method: "POST",
             cache: "no-cache",
             headers: {
-                "Authorization": `Bearer ${this.props.session.token}`
+                "Authorization": `Bearer ${ this.props.session.token }`
             },
             body: formData
         }).then(res => {
