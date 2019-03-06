@@ -67,7 +67,7 @@ class EditorPropertiesCoverImage extends Component {
 
             Net.request(this.props.session, "_skeleton", {
                 action: "SET_ARTICLE_COVER_URL",
-                id: this.props.id,
+                id: this.props.article.id,
                 coverURL: publicUrl
             }).then(() => {
                 this.props.article.setCoverURL(publicUrl)
