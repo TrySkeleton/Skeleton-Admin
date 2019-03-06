@@ -5,6 +5,7 @@ import Editor from './Editor'
 import PropTypes from "prop-types";
 import {Session} from "../../../Session";
 import Spinner from "../../utils/Spinner";
+import Article from "./Article"
 
 class ArticleLoader extends Component {
 
@@ -22,16 +23,14 @@ class ArticleLoader extends Component {
         Net.request(this.props.session,'_skeleton', {
             action: "GET_ARTICLE",
             id: this.props.id
-        }).then(article => {
+        }).then(a => {
+
+            const article = new Article()
+            article.setArticle(a.id, a.title, a.content, a["cover_image_url"], a.coverURL, typeof a["published_at"] === 'string' && a["published_at"].length > 1)
+
             this.setState({
                 loading: false,
-                article: {
-                    id: article.id,
-                    title: article.title,
-                    content: article.content,
-                    coverURL: article.cover_image_url || "",
-                    isPublished: typeof article.published_at === 'string' && article.published_at.length > 1
-                }
+                article
             })
         })
     }
@@ -42,11 +41,7 @@ class ArticleLoader extends Component {
             <Spinner />
         ) : (
             <Editor
-                id={ this.state.article.id }
-                title={ this.state.article.title }
-                content={ this.state.article.content }
-                coverURL={ this.state.article.coverURL }
-                isPublished={ this.state.article.isPublished }
+                article={ this.state.article }
                 session={ this.props.session } />
         )
     }

@@ -84,6 +84,7 @@ class Articles extends Component {
         target.disabled = true
 
         if (!window.confirm("Do you really want to delete this article?")) {
+            target.disabled = false
             return
         }
 

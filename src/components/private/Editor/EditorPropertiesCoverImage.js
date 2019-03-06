@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react'
 import PropTypes from "prop-types"
 import {Session} from "../../../Session"
 import Net from '../../../connect'
+import Article from "./Article"
 
 class EditorPropertiesCoverImage extends Component {
 
@@ -14,7 +15,6 @@ class EditorPropertiesCoverImage extends Component {
         this.pushError = this.pushError.bind(this)
 
         this.state = {
-            coverURL: "",
             isValid: false,
             errors: []
         }
@@ -70,10 +70,7 @@ class EditorPropertiesCoverImage extends Component {
                 id: this.props.id,
                 coverURL: publicUrl
             }).then(() => {
-                this.setState({
-                    coverURL: publicUrl,
-                    isValid: true
-                })
+                this.props.article.setCoverURL(publicUrl)
             }).catch(err => {
                 this.pushError(err)
             })
@@ -90,10 +87,9 @@ class EditorPropertiesCoverImage extends Component {
             </div>
         ))
 
-        return this.state.isValid || this.props.coverURL !== "" ? (
-            <img src={ this.props.coverURL } className="img-fluid img-thumbnail" />
-        ) : (
+        return (
             <Fragment>
+                <img src={ this.props.article.coverURL } className={ this.props.article.coverURLIsValid ? "img-fluid img-thumbnail mb-2" : "d-none" } />
                 { errors }
                 <div className="input-group mb-3">
                     <div className="custom-file">
@@ -114,7 +110,7 @@ class EditorPropertiesCoverImage extends Component {
 
 EditorPropertiesCoverImage.propTypes = {
     session: PropTypes.instanceOf(Session).isRequired,
-    id: PropTypes.number.isRequired
+    article: PropTypes.instanceOf(Article).isRequired
 }
 
 export default EditorPropertiesCoverImage

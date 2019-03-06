@@ -10,6 +10,7 @@ import crypto from 'crypto'
 
 import EditorImageUploader from './EditorImageUploader'
 import EditorProperties from './EditorProperties'
+import Article from "./Article"
 
 const SavingState = {
     SAVED: "Saved",
@@ -24,12 +25,8 @@ class Editor extends Component {
 
         this.state = {
             words: 0,
-            article: {
-                title: this.props.title
-            },
             lastSaved: {
-                title: this.props.title,
-                content: this.props.content
+                content: this.props.article.content
             },
             savingState: SavingState.SAVED,
             showImageInsertModal: false,
@@ -50,6 +47,7 @@ class Editor extends Component {
         this.insertSection = this.insertSection.bind(this)
         this.updateTools = this.updateTools.bind(this)
         this.onInsertImage = this.onInsertImage.bind(this)
+        this.updateWordsCount = this.updateWordsCount.bind(this)
 
         this.insertButton = React.createRef()
         this.tools = React.createRef()
@@ -62,7 +60,8 @@ class Editor extends Component {
         document.addEventListener("selectionchange", this.updateTools)
         window.addEventListener("resize", this.updateTools)
 
-        this.content.current.innerHTML = this.props.content
+        this.content.current.innerHTML = this.props.article.content
+        this.updateWordsCount()
 
         document.querySelectorAll('.section').forEach(m => {
             m.onkeydown = this.onEnter
@@ -114,14 +113,13 @@ class Editor extends Component {
 
         Net.request(this.props.session, "_skeleton", {
             action: "PATCH_ARTICLE",
-            id: this.props.id,
+            id: this.props.article.id,
             patches,
             checkSum,
-            title: this.state.article.title
+            title: this.props.article.title
         }).then(() => {
             this.setState({
                 lastSaved: {
-                    title: this.state.article.title,
                     content: currentContent
                 },
                 savingState: SavingState.SAVED
@@ -189,11 +187,7 @@ class Editor extends Component {
 
     onKeyUp(e) {
 
-        const words = this.content.current.innerText.replace(/\n/g, " ").split(" ").length
-
-        this.setState({
-            words: words > 0 ? words : 0
-        })
+        this.updateWordsCount()
 
         if (this.focusedSection.current) {
             this.setState({
@@ -202,6 +196,13 @@ class Editor extends Component {
         }
 
         this.requestSave()
+    }
+
+    updateWordsCount() {
+        const words = this.content.current.innerText.replace(/\n/g, " ").split(" ").length
+        this.setState({
+            words: words > 0 ? words : 0
+        })
     }
 
     onEnter(e) {
@@ -341,9 +342,9 @@ class Editor extends Component {
                         <input
                             type="text"
                             placeholder="Story Title"
-                            className={ this.state.article.title === "" ? "text-muted title" : "title"}
-                            value={ this.state.article.title }
-                            onChange={ this.onTitleChange }
+                            className={ this.props.article.title === "" ? "text-muted title" : "title"}
+                            value={ this.props.article.title }
+                            onChange={ (e) => this.props.article.setTitle(e.target.value) }
                             onKeyDown={ this.onEnter }
                             ref={ this.heading } />
 
@@ -374,10 +375,7 @@ class Editor extends Component {
 
                 <EditorProperties
                     session={ this.props.session }
-                    id={ this.props.id }
-                    title={ this.state.article.title }
-                    coverURL={ this.props.coverURL }
-                    isPublished={ this.props.isPublished }
+                    article={ this.props.article }
                     display={ this.state.showArticleProperties }
                     onToggle={ () => {
                         this.setState({
@@ -403,11 +401,7 @@ class Editor extends Component {
 
 Editor.propTypes = {
     session: PropTypes.instanceOf(Session).isRequired,
-    id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
-    coverURL: PropTypes.string.isRequired,
-    isPublished: PropTypes.bool.isRequired,
-    content: PropTypes.string
+    article: PropTypes.instanceOf(Article).isRequired
 }
 
 const placeCaretAtEnd = (el) => {

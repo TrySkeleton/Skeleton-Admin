@@ -1,31 +1,55 @@
 import { decorate, observable } from 'mobx'
 
 class Article {
-    id = -1
-    created_at
-    updated_at
-    published_at
+    id
     title
     content
-    preview
-    cover_image_url
-    slug
+    coverURL
+    isPublished
 
-    loadArticle(id) {
-        // Fetch
+    coverURLIsValid
+    checkerImage = new Image()
+
+    constructor() {
+        this.checkerImage.onload = () => this.coverURLIsValid = true
+        this.checkerImage.onerror = () => this.coverURLIsValid = false
+    }
+
+    setArticle(id, title, content, coverURL, isPublished) {
+        this.id = id
+        this.setTitle(title)
+        this.setContent(content)
+        this.setCoverURL(coverURL)
+        this.setPublished(isPublished)
+    }
+
+    setTitle(value) {
+        this.title = value
+    }
+
+    setContent(value) {
+        this.content = value
+    }
+
+    setCoverURL(value) {
+        this.coverURL = value
+        this.coverURLIsValid = false
+        this.checkerImage.src = value
+    }
+
+    setPublished(value) {
+        this.isPublished = !!value
     }
 }
 
 decorate(Article, {
     id: observable,
-    created_at: observable,
-    updated_at: observable,
-    published_at: observable,
     title: observable,
     content: observable,
-    preview: observable,
-    cover_image_url: observable,
-    slug: observable
+    coverURL: observable,
+    coverURLIsValid: observable,
+    isPublished: observable
 })
+
 
 export default Article

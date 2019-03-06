@@ -4,6 +4,7 @@ import {Session} from "../../../Session"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Net from '../../../connect'
 import EditorPropertiesCoverImage from "./EditorPropertiesCoverImage"
+import Article from "./Article"
 
 class EditorProperties extends Component {
 
@@ -15,13 +16,8 @@ class EditorProperties extends Component {
         this.pushError = this.pushError.bind(this)
 
         this.state = {
-            isPublished: this.props.isPublished,
             errors: []
         }
-    }
-
-    componentDidMount() {
-
     }
 
     pushError(err) {
@@ -30,16 +26,19 @@ class EditorProperties extends Component {
         }))
     }
 
-    setPublishState(publish) {
+    setPublishState(value) {
+
+        if (!this.props.article.coverURLIsValid) {
+            this.pushError(new Error("Invalid cover image"))
+            return
+        }
 
         Net.request(this.props.session, '_skeleton', {
             action: "SET_ARTICLE_PUBLISH_STATE",
             id: this.props.id,
-            publish: publish
+            publish: !!value
         }).then((res) => {
-            this.setState({
-                isPublished: publish
-            })
+            this.props.article.setPublished(!!value)
         }).catch(err => {
             this.pushError(err)
         })
@@ -55,20 +54,19 @@ class EditorProperties extends Component {
 
         return (
             <Modal isOpen={ this.props.display } toggle={ this.props.onToggle } centered={ true }>
-                <ModalHeader toggle={ this.props.onToggle }>{ this.props.title }</ModalHeader>
+                <ModalHeader toggle={ this.props.onToggle }>{ this.props.article.title }</ModalHeader>
                 <ModalBody>
                     { errors }
                     <div className="form-group">
                         <label>Cover image (4:3)</label>
                         <EditorPropertiesCoverImage
-                            id={ this.props.id }
                             session={ this.props.session }
-                            coverURL={ this.props.coverURL }
+                            article={ this.props.article }
                         />
                     </div>
                 </ModalBody>
                 <ModalFooter>
-                    { !this.state.isPublished ? (
+                    { !this.props.article.isPublished ? (
                         <Button color="success" onClick={ () => this.setPublishState(true) }>Publish</Button>
                     ) : (
                         <Button color="danger" onClick={ () => this.setPublishState(false) }>Unplublish</Button>
@@ -83,12 +81,7 @@ class EditorProperties extends Component {
 
 EditorProperties.propTypes = {
     session: PropTypes.instanceOf(Session).isRequired,
-    id: PropTypes.number.isRequired,
-    title: PropTypes.string.isRequired,
-    coverURL: PropTypes.string.isRequired,
-    display: PropTypes.bool.isRequired,
-    isPublished: PropTypes.bool.isRequired,
-    onToggle: PropTypes.func.isRequired
+    article: PropTypes.instanceOf(Article).isRequired
 }
 
 export default EditorProperties
