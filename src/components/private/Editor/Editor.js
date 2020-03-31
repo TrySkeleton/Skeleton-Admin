@@ -11,6 +11,7 @@ import crypto from 'crypto'
 import EditorImageUploader from './EditorImageUploader'
 import EditorProperties from './EditorProperties'
 import Article from "./Article"
+import {observer} from "mobx-react"
 
 const SavingState = {
     SAVED: "Saved",
@@ -419,4 +420,4 @@ const placeCaretAtEnd = (el) => {
     sel.addRange(range)
 }
 
-export default Editor
+export default observer(Editor)

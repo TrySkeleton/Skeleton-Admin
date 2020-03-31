@@ -3,6 +3,8 @@ import PropTypes from "prop-types"
 import {Session} from "../../../Session"
 import Net from '../../../connect'
 import Article from "./Article"
+import Spinner from "../../utils/Spinner"
+import {observer} from "mobx-react"
 
 class EditorPropertiesCoverImage extends Component {
 
@@ -15,7 +17,7 @@ class EditorPropertiesCoverImage extends Component {
         this.pushError = this.pushError.bind(this)
 
         this.state = {
-            isValid: false,
+            loading: false,
             errors: []
         }
 
@@ -36,46 +38,54 @@ class EditorPropertiesCoverImage extends Component {
 
     uploadImage(imageFile) {
 
-        const formData = new FormData()
-        formData.append('image', imageFile)
+        this.setState({
+            loading: true
+        }, () => {
+            const formData = new FormData()
+            formData.append('image', imageFile)
 
-        fetch('/skeleton/api/v1/upload', {
-            method: "POST",
-            cache: "no-cache",
-            headers: {
-                "Authorization": `Bearer ${ this.props.session.token }`
-            },
-            body: formData
-        }).then(res => {
+            fetch('/skeleton/api/v1/upload', {
+                method: "POST",
+                cache: "no-cache",
+                headers: {
+                    "Authorization": `Bearer ${ this.props.session.token }`
+                },
+                body: formData
+            }).then(res => {
 
-            const status = res.status
+                const status = res.status
 
-            if (status === 401) {
-                this.pushError(new Error("Unauthorized"))
-                return
-            }
+                if (status === 401) {
+                    this.pushError(new Error("Unauthorized"))
+                    return
+                }
 
-            return res.json()
-        }).then(data => {
+                return res.json()
+            }).then(data => {
 
-            const publicUrl = data.publicUrl
+                const publicUrl = data.publicUrl
 
-            if (typeof publicUrl !== "string" || publicUrl.length < 1) {
-                this.pushError(new Error("Unknown error"))
-                return
-            }
+                if (typeof publicUrl !== "string" || publicUrl.length < 1) {
+                    this.pushError(new Error("Unknown error"))
+                    return
+                }
 
-            Net.request(this.props.session, "_skeleton", {
-                action: "SET_ARTICLE_COVER_URL",
-                id: this.props.article.id,
-                coverURL: publicUrl
-            }).then(() => {
-                this.props.article.setCoverURL(publicUrl)
+                Net.request(this.props.session, "_skeleton", {
+                    action: "SET_ARTICLE_COVER_URL",
+                    id: this.props.article.id,
+                    coverURL: publicUrl
+                }).then(() => {
+                    this.props.article.setCoverURL(publicUrl)
+                }).catch(err => {
+                    this.pushError(err)
+                }).finally(() => {
+                    this.setState({
+                        loading: false
+                    })
+                })
             }).catch(err => {
                 this.pushError(err)
             })
-        }).catch(err => {
-            this.pushError(err)
         })
     }
 
@@ -87,9 +97,9 @@ class EditorPropertiesCoverImage extends Component {
             </div>
         ))
 
-        return (
+        return !this.state.loading ? (
             <Fragment>
-                <img src={ this.props.article.coverURL } className={ this.props.article.coverURLIsValid ? "img-fluid img-thumbnail mb-2" : "d-none" } />
+                <img src={ this.props.article.coverURL } className={ this.props.article.coverURLIsValid ? "img-fluid img-thumbnail mb-2" : "d-none" } alt="Cover preview" />
                 { errors }
                 <div className="input-group mb-3">
                     <div className="custom-file">
@@ -104,6 +114,8 @@ class EditorPropertiesCoverImage extends Component {
                     </div>
                 </div>
             </Fragment>
+        ) : (
+            <Spinner/>
         )
     }
 }
@@ -113,4 +125,4 @@ EditorPropertiesCoverImage.propTypes = {
     article: PropTypes.instanceOf(Article).isRequired
 }
 
-export default EditorPropertiesCoverImage
+export default observer(EditorPropertiesCoverImage)

@@ -5,6 +5,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import Net from '../../../connect'
 import EditorPropertiesCoverImage from "./EditorPropertiesCoverImage"
 import Article from "./Article"
+import { observer } from "mobx-react"
 
 class EditorProperties extends Component {
 
@@ -16,7 +17,8 @@ class EditorProperties extends Component {
         this.pushError = this.pushError.bind(this)
 
         this.state = {
-            errors: []
+            errors: [],
+            loading: false
         }
     }
 
@@ -35,7 +37,7 @@ class EditorProperties extends Component {
 
         Net.request(this.props.session, '_skeleton', {
             action: "SET_ARTICLE_PUBLISH_STATE",
-            id: this.props.id,
+            id: this.props.article.id,
             publish: !!value
         }).then((res) => {
             this.props.article.setPublished(!!value)
@@ -67,9 +69,9 @@ class EditorProperties extends Component {
                 </ModalBody>
                 <ModalFooter>
                     { !this.props.article.isPublished ? (
-                        <Button color="success" onClick={ () => this.setPublishState(true) }>Publish</Button>
+                        <Button color="success" onClick={ () => this.setPublishState(true)} disabled={ this.state.loading }>Publish</Button>
                     ) : (
-                        <Button color="danger" onClick={ () => this.setPublishState(false) }>Unplublish</Button>
+                        <Button color="danger" onClick={ () => this.setPublishState(false)} disabled={ this.state.loading }>Unplublish</Button>
                     )}
                     {' '}
                     <Button color="secondary" onClick={ this.props.onToggle }>Close</Button>
@@ -84,4 +86,4 @@ EditorProperties.propTypes = {
     article: PropTypes.instanceOf(Article).isRequired
 }
 
-export default EditorProperties
+export default observer(EditorProperties)
