@@ -18,7 +18,7 @@
     "cropperjs": "^1.4.3",
     "croppie": "^2.6.2",
     "diff-match-patch": "^1.0.4",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "http-errors": "^1.7.1",
     "mobx": "^5.8.0",
     "mobx-react": "^5.4.3",
